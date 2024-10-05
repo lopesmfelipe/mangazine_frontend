@@ -3,9 +3,13 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Axios from "axios";
 
+interface User {
+  role: String;
+}
+
 const AdminRoute = ({ element: Element, ...rest }) => {
   const { userId } = useAuth();
-  const [role, setRole] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,9 +18,9 @@ const AdminRoute = ({ element: Element, ...rest }) => {
       console.log(userId);
 
       // Fetch user role
-      Axios.get(`${import.meta.env.VITE_API_URL}/user/get-role/${userId}`)
+      Axios.get(`${import.meta.env.VITE_API_URL}/users/${userId}`)
         .then((response) => {
-          setRole(response.data.userRole);
+          setUser(response.data.user);
           setLoading(false);
         })
         .catch((err) => {
@@ -27,9 +31,13 @@ const AdminRoute = ({ element: Element, ...rest }) => {
   }, [userId]);
 
   if (loading) {
-    return <div>Loading...</div>; // Optional: Loading state while fetching role
+    return <div>Loading...</div>;
   }
 
-  return role === "admin" ? <Element {...rest} /> : <Navigate to="/home" />;
+  return user?.role === "admin" ? (
+    <Element {...rest} />
+  ) : (
+    <Navigate to="/home" />
+  );
 };
 export default AdminRoute;

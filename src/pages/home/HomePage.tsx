@@ -1,7 +1,6 @@
 import classes from "./style.module.css";
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { SignedIn, UserButton, useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 import Searchbar from "./components/searchbar/Searchbar";
 import axios from "axios";
 import Header from "../../components/header/Header";
@@ -14,13 +13,12 @@ const Home = () => {
     if (user) {
       const checkAndCreateUser = async () => {
         try {
-          const checkUser = await axios.get(
-            `${import.meta.env.VITE_API_URL}/user/exists/${user.id}`
+          const fetchedUser = await axios.get(
+            `${import.meta.env.VITE_API_URL}/users/${user.id}`
           );
-          const checkData = checkUser.data;
 
           // USER DOES NOT EXIST, CREATE NEW USER
-          if (!checkData.exists) {
+          if (!fetchedUser) {
             const userData = {
               userId: user.id,
               email: user.emailAddresses[0].emailAddress,
@@ -28,12 +26,12 @@ const Home = () => {
             };
 
             const createUser = await axios.post(
-              `${import.meta.env.VITE_API_URL}/user/signup`,
+              `${import.meta.env.VITE_API_URL}/users/`,
               userData
             );
 
             if (createUser.status === 200) {
-              console.log("User created successfully");
+              console.log("User created!");
             } else {
               console.error("Failed to create user");
             }
